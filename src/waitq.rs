@@ -64,8 +64,8 @@ impl<const N: usize> WaitList<N> {
     pub fn drain(&mut self, mut f: impl FnMut(u8)) {
         let n = self.len;
         self.len = 0;
-        for i in 0..n {
-            f(self.ids[i]);
+        for &id in &self.ids[..n] {
+            f(id);
         }
     }
 }

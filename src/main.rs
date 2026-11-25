@@ -512,13 +512,13 @@ fn read_loaded_image(bs: &BootServices, image: Handle) {
         if !li.load_options.is_null() {
             let opts = li.load_options as *const u16;
             let mut len = 0;
-            for i in 0..units {
+            for (i, out) in b.cmdline.iter_mut().enumerate().take(units) {
                 // SAFETY: `units` 16-bit words lie within load_options_size bytes.
                 let c = unsafe { opts.add(i).read_unaligned() };
                 if c == 0 {
                     break; // a terminating NUL is not part of the options
                 }
-                b.cmdline[i] = if (0x20..0x7F).contains(&c) { c as u8 } else { b'?' };
+                *out = if (0x20..0x7F).contains(&c) { c as u8 } else { b'?' };
                 len = i + 1;
             }
             b.cmdline_len = len;

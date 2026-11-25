@@ -263,11 +263,11 @@ extern "C" fn aeon_sched_irq(sp: u64, timer: u64) -> u64 {
         _ => Reason::Yield,
     };
     // Release stacks of finished tasks (never the one we are switching away from this instant).
-    for i in 1..MAX_TASKS {
-        if s.tasks[i].state == State::Dead && i != cur {
-            free_stack(s.tasks[i].stack, true);
-            let was_user = s.tasks[i].user;
-            s.tasks[i] = FREE_TASK;
+    for (i, task) in s.tasks.iter_mut().enumerate().skip(1) {
+        if task.state == State::Dead && i != cur {
+            free_stack(task.stack, true);
+            let was_user = task.user;
+            *task = FREE_TASK;
             if was_user {
                 // The process behind the task gives back its memory and files. This CPU is not using
                 // its page tables: `i` is not the running task and CR3 follows the running task.

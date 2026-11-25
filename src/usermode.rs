@@ -780,8 +780,8 @@ pub fn reap_background() -> Vec<(u32, String, i32)> {
     arch::without_interrupts(|| {
         let t = table();
         let mut out = Vec::new();
-        for i in 0..MAX_PROCS {
-            let done = match &t.slots[i] {
+        for slot in t.slots.iter_mut() {
+            let done = match slot {
                 Some(p) if p.ppid == 0 && !is_foreground(p.pid) && !p.verbose => match p.state {
                     PState::Zombie(c) => Some((p.pid, p.name.clone(), c)),
                     PState::Running => None,
@@ -789,7 +789,7 @@ pub fn reap_background() -> Vec<(u32, String, i32)> {
                 _ => None,
             };
             if let Some(d) = done {
-                t.slots[i] = None;
+                *slot = None;
                 out.push(d);
             }
         }

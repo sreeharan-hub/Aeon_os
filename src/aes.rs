@@ -101,7 +101,7 @@ impl Aes128 {
     pub fn encrypt_block(&self, block: &[u8; 16]) -> [u8; 16] {
         let mut s = *block;
         Self::add_key(&mut s, &self.round_keys[0]);
-        for round in 1..=10 {
+        for (round, round_key) in self.round_keys.iter().enumerate().skip(1) {
             for b in s.iter_mut() {
                 *b = SBOX[*b as usize];
             }
@@ -121,7 +121,7 @@ impl Aes128 {
                     s[c * 4 + 3] = (xtime(a[0]) ^ a[0]) ^ a[1] ^ a[2] ^ xtime(a[3]);
                 }
             }
-            Self::add_key(&mut s, &self.round_keys[round]);
+            Self::add_key(&mut s, round_key);
         }
         s
     }
